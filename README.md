@@ -16,8 +16,9 @@ nord # -> ~/.config/alacritty/alacritty.yml is updated
 one_dark #
 ```
 
-Warning: please make a backup of your `alacritty.yml` since `acs` over-writes
-the content with the changed color file! Also some formatting will be lost!
+**Warning**: please make a backup of your `alacritty.yml` since `acs` overwrites
+the content with the changed color file! **Also the formatting will be lost
+partially!**
 
 
 ## Install
