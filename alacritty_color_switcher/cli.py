@@ -3,13 +3,15 @@ from pathlib import Path
 from ruamel.yaml import YAML
 import os
 import sys
-
+from itertools import chain
 
 yaml = YAML()
 
 def get_color_configs(color_dir):
     configs = dict()
-    for conf in color_dir.glob("**/*.yaml"):
+    globs = ["**/*.yaml", "**/*.yml"]
+
+    for conf in chain(*(color_dir.glob(gl) for gl in globs)):
         # TODO catch yaml load exceptions
         with conf.open() as fp:
             configs[conf.stem] = yaml.load(fp)
