@@ -23,5 +23,15 @@ partially!**
 
 ## Install
 ```
-pip install git+https://github.com/tbehner/alacritty-color-switcher.git
+pip install alacritty-color-switcher
 ```
+
+Create a directory with all your color schemes
+```
+mkdir ~/.config/alacritty-colors
+mv your_color_scheme.yaml ~/.config/alacritty-colors/
+```
+
+`acs` will find all files with `yaml` or `yml` as suffix.
+The color schemes should have the same structure as showed on the [Alacritty
+Wiki](https://github.com/jwilm/alacritty/wiki/Color-schemes).
