@@ -35,3 +35,8 @@ mv your_color_scheme.yaml ~/.config/alacritty-colors/
 `acs` will find all files with `yaml` or `yml` as suffix.
 The color schemes should have the same structure as showed on the [Alacritty
 Wiki](https://github.com/jwilm/alacritty/wiki/Color-schemes).
+
+## Roadmap
+  * [ ] reset option to reset to default colors
+  * [ ] reset cursor colors to default if they are not defined in the color
+      scheme

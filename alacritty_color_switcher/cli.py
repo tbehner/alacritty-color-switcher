@@ -4,6 +4,8 @@ from ruamel.yaml import YAML
 import os
 import sys
 from itertools import chain
+import importlib.resources as resources
+from alacritty_color_switcher import templates
 
 yaml = YAML()
 
@@ -66,8 +68,9 @@ def get_next_color(current_color, color_configs):
 @click.option("-c", "--colors", default="$HOME/.config/alacritty-colors")
 @click.option("-l", "--ls", is_flag=True, default=False, help="List all found color configs and exit.")
 @click.option("--debug", is_flag=True, default=False)
+@click.option("--reset-default", is_flag=True, default=False)
 @click.pass_context
-def main(ctx, config, switch, apply, colors, ls, debug):
+def main(ctx, config, switch, apply, colors, ls, debug, reset_default):
     color_dir = Path(os.path.expandvars(colors))
     config = Path(os.path.expandvars(config))
 
@@ -102,6 +105,11 @@ def main(ctx, config, switch, apply, colors, ls, debug):
         current_color = get_current_color(color_dir)
         new_color = get_next_color(current_color, color_configs)
         updated_config = apply_color_config(color_configs[new_color], config)
+
+    if reset_default:
+        default_fp = resources.open_text(templates, 'default.yaml')
+        default_config = yaml.load(default_fp)
+        updated_config = apply_color_config(default_config, config)
 
     if debug:
         yaml.dump(updated_config, stream=sys.stdout)
