@@ -9,6 +9,7 @@ from alacritty_color_switcher import templates
 
 yaml = YAML()
 
+
 def get_color_configs(color_dir):
     configs = dict()
     globs = ["**/*.yaml", "**/*.yml"]
@@ -20,13 +21,14 @@ def get_color_configs(color_dir):
 
     return configs
 
+
 def reset_undefined(color_config, alacritty_config):
     alacritty_colors = alacritty_config["colors"]
 
-    relative_colors = ['cursor', 'dim', 'selection'] 
+    relative_colors = ["cursor", "dim", "selection"]
     for ctype in relative_colors:
 
-        if ctype in color_config['colors'].keys():
+        if ctype in color_config["colors"].keys():
             continue
 
         if ctype not in alacritty_colors.keys():
@@ -48,14 +50,13 @@ def apply_color_config(color_config, alacritty_config):
     for color_type in alacritty_colors:
         for color in alacritty_colors[color_type]:
             try:
-                alacritty_colors[color_type][color] = color_config['colors'][color_type][color]
+                alacritty_colors[color_type][color] = color_config["colors"][
+                    color_type
+                ][color]
             except KeyError:
                 click.echo(f"{color_type}/{color} not found in the color config!")
 
-
     return alacritty_config
-
-    # TODO why no alacritty_colors.update(color_config) ?
 
 
 def set_current_color(color_name, color_dir):
@@ -88,7 +89,13 @@ def get_next_color(current_color, color_configs):
 @click.option("-s", "--switch", is_flag=True)
 @click.option("-a", "--apply", default="")
 @click.option("-c", "--colors", default="$HOME/.config/alacritty-colors")
-@click.option("-l", "--ls", is_flag=True, default=False, help="List all found color configs and exit.")
+@click.option(
+    "-l",
+    "--ls",
+    is_flag=True,
+    default=False,
+    help="List all found color configs and exit.",
+)
 @click.option("--debug", is_flag=True, default=False)
 @click.option("--reset-default", is_flag=True, default=False)
 @click.pass_context
@@ -97,12 +104,15 @@ def main(ctx, config, switch, apply, colors, ls, debug, reset_default):
     config = Path(os.path.expandvars(config))
 
     if not color_dir.is_dir():
-        click.exceptions.ClickException(f"{colors} does not exists!")
+        click.echo(click.style(f"{colors} does not exists!", fg="red"))
         ctx.exit(1)
 
     if not config.is_file():
-        click.exceptions.ClickException(
-            f"{config} does not exists! Is this the right path to your alacritty config?"
+        click.echo(
+            click.style(
+                f"{config} does not exists! Is this the right path to your alacritty config?",
+                fg="red",
+            )
         )
         ctx.exit(1)
 
@@ -129,7 +139,7 @@ def main(ctx, config, switch, apply, colors, ls, debug, reset_default):
         updated_config = apply_color_config(color_configs[new_color], config)
 
     if reset_default:
-        default_fp = resources.open_text(templates, 'default.yaml')
+        default_fp = resources.open_text(templates, "default.yaml")
         default_config = yaml.load(default_fp)
         updated_config = apply_color_config(default_config, config)
         new_color = None
@@ -142,6 +152,7 @@ def main(ctx, config, switch, apply, colors, ls, debug, reset_default):
 
     if new_color:
         set_current_color(new_color, color_dir)
+
 
 if __name__ == "__main__":
     main()
