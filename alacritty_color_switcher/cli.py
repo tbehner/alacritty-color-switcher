@@ -20,16 +20,38 @@ def get_color_configs(color_dir):
 
     return configs
 
+def reset_undefined(color_config, alacritty_config):
+    alacritty_colors = alacritty_config["colors"]
+
+    relative_colors = ['cursor', 'dim', 'selection'] 
+    for ctype in relative_colors:
+
+        if ctype in color_config['colors'].keys():
+            continue
+
+        if ctype not in alacritty_colors.keys():
+            continue
+
+        for field in alacritty_colors[ctype].keys():
+            alacritty_colors[ctype][field] = None
+
+    return alacritty_config
+
 
 def apply_color_config(color_config, alacritty_config):
     with alacritty_config.open() as fp:
         alacritty_config = yaml.load(fp)
 
+    alacritty_config = reset_undefined(color_config, alacritty_config)
     alacritty_colors = alacritty_config["colors"]
 
     for color_type in alacritty_colors:
         for color in alacritty_colors[color_type]:
-            alacritty_colors[color_type][color] = color_config['colors'][color_type][color]
+            try:
+                alacritty_colors[color_type][color] = color_config['colors'][color_type][color]
+            except KeyError:
+                click.echo(f"{color_type}/{color} not found in the color config!")
+
 
     return alacritty_config
 
@@ -110,6 +132,7 @@ def main(ctx, config, switch, apply, colors, ls, debug, reset_default):
         default_fp = resources.open_text(templates, 'default.yaml')
         default_config = yaml.load(default_fp)
         updated_config = apply_color_config(default_config, config)
+        new_color = None
 
     if debug:
         yaml.dump(updated_config, stream=sys.stdout)
@@ -117,7 +140,8 @@ def main(ctx, config, switch, apply, colors, ls, debug, reset_default):
         with config.open("w") as fp:
             yaml.dump(updated_config, stream=fp)
 
-    set_current_color(new_color, color_dir)
+    if new_color:
+        set_current_color(new_color, color_dir)
 
 if __name__ == "__main__":
     main()

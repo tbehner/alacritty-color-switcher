@@ -19,8 +19,8 @@ colors:
   # Colors which should be used to draw the terminal cursor. If these are unset,
   # the cursor color will be the inverse of the cell color.
   cursor:
-   text: ''
-   cursor: ''
+   text:
+   cursor:
 
   # Selection colors
   #
@@ -58,14 +58,14 @@ colors:
   # If the dim colors are not set, they will be calculated automatically based
   # on the `normal` colors.
   dim:
-    black:   ''
-    red:     ''
-    green:   ''
-    yellow:  ''
-    blue:    ''
-    magenta: ''
-    cyan:    ''
-    white:   ''
+    black:
+    red:
+    green:
+    yellow:
+    blue:
+    magenta:
+    cyan:
+    white:
 
   # Indexed Colors
   #
