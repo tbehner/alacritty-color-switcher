@@ -4,6 +4,8 @@ from ruamel.yaml import YAML
 import os
 import sys
 from itertools import chain
+import importlib.resources as resources
+from alacritty_color_switcher import templates
 
 yaml = YAML()
 
@@ -18,16 +20,38 @@ def get_color_configs(color_dir):
 
     return configs
 
+def reset_undefined(color_config, alacritty_config):
+    alacritty_colors = alacritty_config["colors"]
+
+    relative_colors = ['cursor', 'dim', 'selection'] 
+    for ctype in relative_colors:
+
+        if ctype in color_config['colors'].keys():
+            continue
+
+        if ctype not in alacritty_colors.keys():
+            continue
+
+        for field in alacritty_colors[ctype].keys():
+            alacritty_colors[ctype][field] = None
+
+    return alacritty_config
+
 
 def apply_color_config(color_config, alacritty_config):
     with alacritty_config.open() as fp:
         alacritty_config = yaml.load(fp)
 
+    alacritty_config = reset_undefined(color_config, alacritty_config)
     alacritty_colors = alacritty_config["colors"]
 
     for color_type in alacritty_colors:
         for color in alacritty_colors[color_type]:
-            alacritty_colors[color_type][color] = color_config['colors'][color_type][color]
+            try:
+                alacritty_colors[color_type][color] = color_config['colors'][color_type][color]
+            except KeyError:
+                click.echo(f"{color_type}/{color} not found in the color config!")
+
 
     return alacritty_config
 
@@ -66,8 +90,9 @@ def get_next_color(current_color, color_configs):
 @click.option("-c", "--colors", default="$HOME/.config/alacritty-colors")
 @click.option("-l", "--ls", is_flag=True, default=False, help="List all found color configs and exit.")
 @click.option("--debug", is_flag=True, default=False)
+@click.option("--reset-default", is_flag=True, default=False)
 @click.pass_context
-def main(ctx, config, switch, apply, colors, ls, debug):
+def main(ctx, config, switch, apply, colors, ls, debug, reset_default):
     color_dir = Path(os.path.expandvars(colors))
     config = Path(os.path.expandvars(config))
 
@@ -103,13 +128,20 @@ def main(ctx, config, switch, apply, colors, ls, debug):
         new_color = get_next_color(current_color, color_configs)
         updated_config = apply_color_config(color_configs[new_color], config)
 
+    if reset_default:
+        default_fp = resources.open_text(templates, 'default.yaml')
+        default_config = yaml.load(default_fp)
+        updated_config = apply_color_config(default_config, config)
+        new_color = None
+
     if debug:
         yaml.dump(updated_config, stream=sys.stdout)
     else:
         with config.open("w") as fp:
             yaml.dump(updated_config, stream=fp)
 
-    set_current_color(new_color, color_dir)
+    if new_color:
+        set_current_color(new_color, color_dir)
 
 if __name__ == "__main__":
     main()
