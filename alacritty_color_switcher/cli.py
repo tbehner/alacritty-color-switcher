@@ -79,6 +79,10 @@ def get_current_color(color_dir):
 
 def get_next_color(current_color, color_configs):
     color_stems = list(color_configs.keys())
+
+    if current_color is None:
+        return color_stems[0]
+
     current_index = color_stems.index(current_color)
     next_index = (current_index + 1) % len(color_stems)
     return color_stems[next_index]
