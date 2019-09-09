@@ -7,7 +7,7 @@ with open("README.md") as f:
 
 setup(
     name="alacritty-color-switcher",
-    version="0.1.1",
+    version="0.1.2",
     description="Apply color schemes to your alacritty config.",
     long_description=readme,
     long_description_content_type="text/markdown",
