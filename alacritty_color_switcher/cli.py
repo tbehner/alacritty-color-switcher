@@ -106,6 +106,10 @@ def get_next_color(current_color, color_configs):
 def main(ctx, config, switch, apply, colors, ls, debug, reset_default):
     color_dir = Path(os.path.expandvars(colors))
     config = Path(os.path.expandvars(config))
+    updated_config = None
+
+    if debug:
+        click.echo(f"Working on {config}")
 
     if not color_dir.is_dir():
         click.echo(click.style(f"{colors} does not exists!", fg="red"))
@@ -151,8 +155,9 @@ def main(ctx, config, switch, apply, colors, ls, debug, reset_default):
     if debug:
         yaml.dump(updated_config, stream=sys.stdout)
     else:
-        with config.open("w") as fp:
-            yaml.dump(updated_config, stream=fp)
+        if updated_config:
+            with config.open("w") as fp:
+                yaml.dump(updated_config, stream=fp)
 
     if new_color:
         set_current_color(new_color, color_dir)
